@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  biograph-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: biograph-ai:latest
+    container_name: biograph-ai
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+    restart: unless-stopped

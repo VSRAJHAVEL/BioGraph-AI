@@ -22,9 +22,11 @@ if [ ! -f "frontend/dist/index.html" ]; then
     cd frontend && npm install && npm run build && cd ..
 fi
 
+PORT="${PORT:-8000}"
+
 if [ "$1" = "--dev" ]; then
-    echo "Starting Development Mode (Vite on :5173 + FastAPI on :8000)..."
-    python -m uvicorn app.server:app --host 0.0.0.0 --port 8000 --reload &
+    echo "Starting Development Mode (Vite on :5173 + FastAPI on :$PORT)..."
+    python -m uvicorn app.server:app --host 0.0.0.0 --port "$PORT" --reload &
     BACKEND_PID=$!
     cd frontend && npm run dev &
     FRONTEND_PID=$!
@@ -33,8 +35,8 @@ if [ "$1" = "--dev" ]; then
     wait
 else
     echo "Starting Unified Production Server..."
-    echo "URL: http://localhost:8000"
-    echo "API Docs: http://localhost:8000/docs"
+    echo "URL: http://localhost:$PORT"
+    echo "API Docs: http://localhost:$PORT/docs"
     echo "Press Ctrl+C to terminate."
-    python -m uvicorn app.server:app --host 0.0.0.0 --port 8000
+    python -m uvicorn app.server:app --host 0.0.0.0 --port "$PORT"
 fi

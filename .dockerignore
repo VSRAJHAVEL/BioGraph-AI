@@ -1,0 +1,15 @@
+.git/
+.venv/
+.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.tsbuildinfo
+node_modules/
+frontend/node_modules/
+frontend/test-results/
+frontend/.vite/
+data/processed/
+.DS_Store
+Thumbs.db

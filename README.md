@@ -198,6 +198,10 @@ BioGraph-AI/
 │       ├── baseline.py        # 2048-bit Morgan Fingerprint Random Forest baseline
 │       └── gnn.py             # GCN, GAT, GIN, and MPNN (NNConv) PyG modules
 ├── tests/                     # Comprehensive test suite (49 pytest test cases)
+├── .dockerignore              # Docker build context exclusions
+├── Dockerfile                 # Multi-stage production container specification
+├── docker-compose.yml         # Container orchestration manifest
+├── LICENSE                    # MIT License (RAJHAVEL V S)
 ├── pytest.ini                 # Pytest configuration
 ├── requirements.txt           # Pinned CPU dependencies (PyG, RDKit, FastAPI, Scikit-learn)
 ├── setup.sh                   # Automated CPU environment setup script
@@ -262,6 +266,83 @@ python src/evaluate.py
 
 # Explain functional groups with GNNExplainer
 python src/explain.py --model mpnn --dataset esol --smiles "CC(=O)Oc1ccccc1C(=O)O" --output results/plots/aspirin_esol_mpnn.png
+```
+
+---
+
+## 🚢 Deployment Guide
+
+### Option 1: Docker Container (Recommended for Cloud & Local Production)
+The included multi-stage `Dockerfile` compiles the React frontend and packages the CPU-optimized PyTorch/RDKit backend into a self-contained, isolated image:
+
+```bash
+# 1. Build the production Docker image
+docker build -t biograph-ai:latest .
+
+# 2. Run the container
+docker run -p 8000:8000 -e PORT=8000 biograph-ai:latest
+
+# Or using Docker Compose:
+docker-compose up -d
+```
+Access the application at **`http://localhost:8000`**.
+
+### Option 2: Render.com (One-Click Cloud Web Service)
+1. Fork or push your code to GitHub: `https://github.com/VSRAJHAVEL/BioGraph-AI`.
+2. Sign in to [Render](https://render.com) and click **New +** $\to$ **Web Service**.
+3. Connect your `BioGraph-AI` repository.
+4. Select **Docker** as the Environment runtime (Render automatically detects the `Dockerfile`).
+5. Choose the **Standard instance** (recommended: 2 GB RAM minimum to hold the PyTorch/RDKit GNN models in memory).
+6. Click **Create Web Service**. Render builds the image and provisions a live public HTTPS URL (e.g., `https://biograph-ai.onrender.com`).
+
+### Option 3: Railway.app / Fly.io
+- **Railway**: Click **New Project** $\to$ **Deploy from GitHub repo** $\to$ Select `BioGraph-AI`. Railway builds the `Dockerfile` and deploys automatically.
+- **Fly.io**:
+  ```bash
+  fly launch
+  fly deploy
+  ```
+
+### Option 4: Hugging Face Spaces (Free CPU Hosting for ML Portfolio)
+1. Create a new Space on [Hugging Face Spaces](https://huggingface.co/spaces).
+2. Choose **Docker** as the Space SDK and set the license to **MIT**.
+3. Link your Space remote and push:
+   ```bash
+   git remote add space https://huggingface.co/spaces/YOUR_USERNAME/BioGraph-AI
+   git push space main
+   ```
+
+### Option 5: Linux Virtual Machine (AWS EC2 / DigitalOcean Droplet / GCP Compute)
+Deploy as a persistent systemd background service on Ubuntu 20.04/22.04+:
+```bash
+# 1. Clone and run automated setup
+git clone https://github.com/VSRAJHAVEL/BioGraph-AI.git /opt/BioGraph-AI
+cd /opt/BioGraph-AI
+bash setup.sh
+cd frontend && npm install && npm run build && cd ..
+
+# 2. Create systemd daemon unit
+sudo tee /etc/systemd/system/biograph-ai.service > /dev/null <<EOF
+[Unit]
+Description=BioGraph AI Discovery Platform Service
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/BioGraph-AI
+Environment="PORT=8000"
+ExecStart=/opt/BioGraph-AI/.venv/bin/uvicorn app.server:app --host 0.0.0.0 --port 8000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# 3. Enable and start daemon
+sudo systemctl daemon-reload
+sudo systemctl enable --now biograph-ai
 ```
 
 ---
