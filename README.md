@@ -11,7 +11,7 @@ license: mit
 
 # BioGraph AI — Deep Graph Neural Networks for Molecular Discovery
 
-[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Live%20Demo-Hugging%20Face%20Spaces-yellow?style=for-the-badge&logo=huggingface)](https://huggingface.co/spaces/Rajhavelvssince/BioGraph-AI)
+[![Live Platform](https://img.shields.io/badge/%F0%9F%8C%90%20Live%20Platform-GitHub%20Pages-2ea44f?style=for-the-badge&logo=github)](https://vsrajhavel.github.io/BioGraph-AI/)
 [![Hugging Face Models](https://img.shields.io/badge/%F0%9F%A4%97%20Model%20Hub-Pretrained%20Weights-orange?style=for-the-badge&logo=huggingface)](https://huggingface.co/VSRAJHAVEL/BioGraph-AI-Models)
 [![GitHub Stars](https://img.shields.io/badge/GitHub-BioGraph--AI-10b981?style=for-the-badge&logo=github)](https://github.com/VSRAJHAVEL/BioGraph-AI)
 [![Python 3.10](https://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/)
@@ -397,10 +397,10 @@ sudo systemctl enable --now biograph-ai
 
 **Handcrafted by RAJHAVEL V S**
 
+- 🌐 **Live Platform**: [vsrajhavel.github.io/BioGraph-AI](https://vsrajhavel.github.io/BioGraph-AI/)
 - 🌐 **Portfolio Website**: [vsrajhavel.github.io](https://vsrajhavel.github.io)
 - 💼 **LinkedIn Profile**: [linkedin.com/in/rajhavelvs](https://in.linkedin.com/in/rajhavelvs)
 - 🐙 **GitHub Repository**: [github.com/VSRAJHAVEL/BioGraph-AI](https://github.com/VSRAJHAVEL/BioGraph-AI)
-- 🤗 **Hugging Face Live Demo**: [huggingface.co/spaces/Rajhavelvssince/BioGraph-AI](https://huggingface.co/spaces/Rajhavelvssince/BioGraph-AI)
 - 🤗 **Hugging Face Model Hub**: [huggingface.co/VSRAJHAVEL/BioGraph-AI-Models](https://huggingface.co/VSRAJHAVEL/BioGraph-AI-Models)
 
 ---
