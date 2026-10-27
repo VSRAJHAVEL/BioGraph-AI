@@ -31,12 +31,21 @@ export default function ChemicalSpacePage() {
     enabled: Boolean(currentSmiles),
   });
 
-  const handleRun = () => {
-    if (!currentSmiles) {
+  const handleRun = (targetSmiles?: string | React.MouseEvent) => {
+    const smi = (typeof targetSmiles === 'string' ? targetSmiles : currentSmiles || '').trim();
+    if (!smi) {
       toast.error('Please enter a SMILES string first');
       return;
     }
-    refetch();
+    if (smi !== currentSmiles) {
+      setCurrentSmiles(smi);
+    }
+    const toastId = toast.loading(`Projecting ${smi.slice(0, 22)} into 2D chemical space...`);
+    refetch().then(() => {
+      toast.success('PCA projection & Tanimoto neighbors updated!', { id: toastId });
+    }).catch((err) => {
+      toast.error(err.message || 'Projection failed', { id: toastId });
+    });
   };
 
   const referenceData = data?.reference_points || [];

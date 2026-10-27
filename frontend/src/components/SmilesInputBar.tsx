@@ -44,11 +44,26 @@ export const SmilesInputBar: React.FC<SmilesInputBarProps> = ({ onAnalyze, isLoa
     return () => clearTimeout(timer);
   }, [localSmiles]);
 
-  const handleRun = useCallback(() => {
-    if (!localSmiles.trim() || !validation?.valid || loading) return;
-    setSmiles(localSmiles.trim());
+  const handleRun = useCallback(async () => {
+    const trimmed = localSmiles.trim();
+    if (!trimmed || loading) return;
+
+    let valid = validation?.valid;
+    if (valid === undefined) {
+      try {
+        const res = await api.validateSmiles(trimmed);
+        setValidation(res);
+        valid = res.valid;
+      } catch {
+        valid = false;
+      }
+    }
+
+    if (!valid) return;
+
+    setSmiles(trimmed);
     if (onAnalyze) {
-      onAnalyze(localSmiles.trim());
+      onAnalyze(trimmed);
     }
   }, [localSmiles, validation, loading, setSmiles, onAnalyze]);
 
@@ -141,8 +156,8 @@ export const SmilesInputBar: React.FC<SmilesInputBarProps> = ({ onAnalyze, isLoa
           type="button"
           id="analyze-action-btn"
           onClick={handleRun}
-          disabled={!validation?.valid || loading}
-          title={!validation?.valid ? 'Enter a valid SMILES string first' : 'Analyze (Ctrl+Enter)'}
+          disabled={loading || !localSmiles.trim() || (validation !== null && !validation.valid)}
+          title={validation !== null && !validation.valid ? 'Invalid SMILES structure' : 'Analyze (Ctrl+Enter)'}
           className="px-6 py-3 rounded-2xl bg-primary text-on-primary font-semibold text-xs hover:opacity-90 shadow-apple-md dark:shadow-[0_8px_20px_rgba(241,207,156,0.25)] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition active:scale-95"
         >
           {loading ? (

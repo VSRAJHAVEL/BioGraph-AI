@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   Wand2,
@@ -21,22 +20,46 @@ import NextStepSuggestion from '@/components/NextStepSuggestion';
 import { toast } from 'sonner';
 
 export default function AnalogsPage() {
-  const { currentSmiles, setCurrentSmiles } = useAppStore();
+  const { currentSmiles, setCurrentSmiles, smiles, setSmiles } = useAppStore();
   const [dataset, setDataset] = useState<'esol' | 'bbbp'>('esol');
   const [maxAnalogs, setMaxAnalogs] = useState<number>(8);
+  const [data, setData] = useState<AnalogsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [lastRunTime, setLastRunTime] = useState<string | null>(null);
+  const [runCount, setRunCount] = useState<number>(0);
+  const [latencyMs, setLatencyMs] = useState<number>(0);
 
-  const { data, isLoading, refetch } = useQuery<AnalogsResponse>({
-    queryKey: ['analogs', currentSmiles, dataset, maxAnalogs],
-    queryFn: () => api.getAnalogs(currentSmiles, dataset, maxAnalogs),
-    enabled: Boolean(currentSmiles),
-  });
-
-  const handleRun = () => {
-    if (!currentSmiles) {
-      toast.error('Please enter a SMILES string first');
+  const handleRun = async (targetSmiles?: string, newDataset?: 'esol' | 'bbbp', newMax?: number) => {
+    const smi = (typeof targetSmiles === 'string' ? targetSmiles : currentSmiles || smiles || '').trim();
+    if (!smi) {
+      toast.error('Please enter a valid SMILES string first');
       return;
     }
-    refetch();
+
+    const activeDataset = newDataset || dataset;
+    const activeMax = newMax || maxAnalogs;
+
+    setCurrentSmiles(smi);
+    setSmiles(smi);
+    setIsLoading(true);
+
+    const toastId = toast.loading(`Evaluating Matched Molecular Pair (MMP) transforms for ${smi.slice(0, 22)}...`);
+    const start = performance.now();
+
+    try {
+      const res = await api.getAnalogs(smi, activeDataset, activeMax);
+      setData(res);
+      const elapsed = Math.round(performance.now() - start);
+      setLatencyMs(elapsed);
+      setLastRunTime(new Date().toLocaleTimeString());
+      setRunCount((c) => c + 1);
+      toast.success(`Generated ${res.analogs.length} candidate analogs in ${elapsed}ms!`, { id: toastId });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to evaluate analogs';
+      toast.error(`Lead optimization error: ${message}`, { id: toastId });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -70,7 +93,11 @@ export default function AnalogsPage() {
             </label>
             <select
               value={dataset}
-              onChange={(e) => setDataset(e.target.value as any)}
+              onChange={(e) => {
+                const next = e.target.value as 'esol' | 'bbbp';
+                setDataset(next);
+                if (data) handleRun(undefined, next, undefined);
+              }}
               className="bg-surface-container border border-white/[0.04] text-on-surface text-xs rounded-xl px-3 py-1.5 focus:ring-1 focus:ring-primary outline-none font-mono"
             >
               <option value="esol">Optimize Solubility (ESOL logS)</option>
@@ -84,7 +111,11 @@ export default function AnalogsPage() {
             </label>
             <select
               value={maxAnalogs}
-              onChange={(e) => setMaxAnalogs(Number(e.target.value))}
+              onChange={(e) => {
+                const next = Number(e.target.value);
+                setMaxAnalogs(next);
+                if (data) handleRun(undefined, undefined, next);
+              }}
               className="bg-surface-container border border-white/[0.04] text-on-surface text-xs rounded-xl px-3 py-1.5 focus:ring-1 focus:ring-primary outline-none font-mono"
             >
               <option value={4}>4 Candidates</option>
@@ -110,6 +141,21 @@ export default function AnalogsPage() {
           </div>
         )}
       </section>
+
+      {/* Execution Telemetry Badge */}
+      {data && lastRunTime && (
+        <div className="p-3.5 rounded-2xl bg-secondary/15 border border-secondary/35 text-secondary text-xs font-mono flex items-center justify-between shadow-lg transition-all animate-stagger">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-secondary shrink-0" />
+            <span className="font-medium">
+              Live Lead Optimization evaluated {data.analogs.length} candidate analogs in {latencyMs}ms.
+            </span>
+          </div>
+          <span className="text-[11px] text-on-surface-variant font-mono">
+            Timestamp: {lastRunTime} (Run #{runCount})
+          </span>
+        </div>
+      )}
 
       {/* 3. Loading State */}
       {isLoading && (
@@ -225,12 +271,20 @@ export default function AnalogsPage() {
 
       {/* 5. Empty State */}
       {!data && !isLoading && (
-        <div className="rounded-3xl bg-surface-container-low/80 backdrop-blur-2xl p-14 text-center space-y-3 border border-white/[0.04]">
-          <Wand2 className="w-10 h-10 text-outline mx-auto" />
-          <h3 className="font-headline text-xl text-on-surface font-normal">No Analog Generation Run</h3>
-          <p className="text-xs text-on-surface-variant max-w-sm mx-auto leading-relaxed">
-            Provide a lead SMILES structure above to generate bioisosteric modifications that optimize solubility or blood-brain barrier penetration.
+        <div className="rounded-3xl bg-surface-container-low/80 backdrop-blur-2xl p-14 text-center space-y-4 border border-white/[0.04]">
+          <Wand2 className="w-10 h-10 text-primary mx-auto opacity-70" />
+          <h3 className="font-headline text-xl text-on-surface font-normal">Ready for Lead Optimization</h3>
+          <p className="text-xs text-on-surface-variant max-w-md mx-auto leading-relaxed">
+            Click &quot;Analyze Molecule&quot; above to apply Matched Molecular Pair (MMP) transforms and evaluate bioisosteric modifications that optimize solubility or blood-brain barrier penetration.
           </p>
+          <button
+            type="button"
+            onClick={() => handleRun()}
+            className="px-6 py-2.5 rounded-2xl bg-primary text-on-primary font-semibold text-xs hover:opacity-90 shadow-md transition active:scale-95 inline-flex items-center gap-2 mx-auto"
+          >
+            <Wand2 className="w-4 h-4" />
+            <span>Generate Lead Analogs</span>
+          </button>
         </div>
       )}
     </div>

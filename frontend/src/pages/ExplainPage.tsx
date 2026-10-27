@@ -30,10 +30,14 @@ export default function ExplainPage() {
     },
   });
 
-  const handleRun = () => {
-    if (!currentSmiles) {
+  const handleRun = (targetSmiles?: string | React.MouseEvent) => {
+    const smi = (typeof targetSmiles === 'string' ? targetSmiles : currentSmiles || '').trim();
+    if (!smi) {
       toast.error('Please enter a SMILES string first');
       return;
+    }
+    if (smi !== currentSmiles) {
+      setCurrentSmiles(smi);
     }
     explainMutation.mutate();
   };

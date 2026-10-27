@@ -20,6 +20,7 @@ import {
 import { useAppStore } from '../store/useAppStore';
 import { api } from '../lib/api/client';
 import { ValidateResponse } from '../lib/api/types';
+import { toast } from 'sonner';
 
 type EndpointKey = 'solubility' | 'permeability' | 'toxicity';
 type ModelKey = 'mpnn' | 'gin' | 'gat' | 'gcn' | 'rf';
@@ -111,12 +112,16 @@ export const PredictPage: React.FC = () => {
       ([, data]) => data.smiles === trimmed
     );
     setActivePreset(match ? match[0] : '');
+    // When user edits the SMILES string, clear previous prediction data so they can run fresh
+    if (analysisData && trimmed !== analysisData.smiles) {
+      setAnalysisData(null);
+      setJustInferred(false);
+    }
   };
 
   // Sync store SMILES into local state
   useEffect(() => {
     setLocalSmiles(smiles);
-    // Find matching preset
     const match = Object.entries(PRESET_DRUGS).find(
       ([, data]) => data.smiles === smiles
     );
@@ -154,13 +159,17 @@ export const PredictPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [localSmiles, setAnalysisError]);
 
-  // Real inference trigger
+  // Real inference trigger - ONLY runs when user clicks Predict properties or hits enter
   const runAnalysis = useCallback(
     async (targetSmiles: string) => {
       const trimmed = targetSmiles.trim();
-      if (!trimmed) return;
+      if (!trimmed) {
+        toast.error('Please enter a valid SMILES string to predict');
+        return;
+      }
       setIsLoading(true);
       setAnalysisError(null);
+      const toastId = toast.loading(`Running live PyTorch Geometric inference across 5 models...`);
       const start = performance.now();
 
       try {
@@ -172,32 +181,41 @@ export const PredictPage: React.FC = () => {
         setLastInferenceTime(new Date().toLocaleTimeString());
         setInferenceCount((c) => c + 1);
         setJustInferred(true);
-        setTimeout(() => setJustInferred(false), 3000);
+        setTimeout(() => setJustInferred(false), 5000);
+        toast.success(`Predicted properties for ${activePreset || res.formula || 'molecule'} across MPNN, GIN, GAT, GCN, RF in ${elapsed}ms!`, { id: toastId });
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Analysis failed';
         setAnalysisError(message);
+        toast.error(`Prediction failed: ${message}`, { id: toastId });
       } finally {
         setIsLoading(false);
       }
     },
-    [setIsLoading, setAnalysisError, setAnalysisData, setSmiles]
+    [setIsLoading, setAnalysisError, setAnalysisData, setSmiles, activePreset]
   );
 
-  // Load initial Aspirin analysis if no data
+  // Global Ctrl+Enter shortcut to trigger Predict properties
   useEffect(() => {
-    if (!analysisData && smiles) {
-      runAnalysis(smiles);
-    }
-  }, [analysisData, smiles, runAnalysis]);
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runAnalysis(localSmiles);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [runAnalysis, localSmiles]);
 
-  // Handle Preset selection
+  // Handle Preset selection: populates the molecule but awaits user clicking Predict
   const handleSelectPreset = (presetKey: string) => {
     const preset = PRESET_DRUGS[presetKey];
     if (!preset) return;
     setActivePreset(presetKey);
     setLocalSmiles(preset.smiles);
     setSmiles(preset.smiles);
-    runAnalysis(preset.smiles);
+    setAnalysisData(null);
+    setJustInferred(false);
+    toast.info(`Selected ${preset.name}. Click "Predict properties" to evaluate with PyG GNNs.`);
   };
 
   // Copy SMILES to clipboard
@@ -213,6 +231,9 @@ export const PredictPage: React.FC = () => {
   const handleClear = () => {
     setLocalSmiles('');
     setValidation(null);
+    setAnalysisData(null);
+    setActivePreset('');
+    setJustInferred(false);
   };
 
   // Toggle model selection
@@ -1045,10 +1066,16 @@ export const PredictPage: React.FC = () => {
                 className="rdkit-svg-auto w-full h-full flex items-center justify-center transition-transform duration-500 group-hover:scale-105"
                 dangerouslySetInnerHTML={{ __html: analysisData.svg_2d }}
               />
+            ) : isLoading ? (
+              <div className="text-center text-primary text-xs flex flex-col items-center gap-2">
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                <span className="font-mono">Computing PyG graph featurization &amp; Kekulé structure...</span>
+              </div>
             ) : (
-              <div className="text-center text-outline text-xs flex flex-col items-center gap-2">
-                <BrainCircuit className="w-8 h-8 text-outline/50 animate-pulse" />
-                <span>Generating Kekulé projection...</span>
+              <div className="text-center text-outline text-xs flex flex-col items-center gap-2.5 p-6">
+                <BrainCircuit className="w-10 h-10 text-primary/40" />
+                <span className="font-medium text-on-surface">Ready for Graph Featurization</span>
+                <span className="text-[11px] text-on-surface-variant max-w-[200px]">Click &quot;Predict properties&quot; to generate 2D topology and 48d atom vectors.</span>
               </div>
             )}
 
@@ -1223,6 +1250,19 @@ export const PredictPage: React.FC = () => {
                 {currentDisplay.narrative}
               </p>
             </div>
+
+            {/* If awaiting prediction, show prominent call-to-action button */}
+            {!analysisData && (
+              <button
+                type="button"
+                onClick={() => runAnalysis(localSmiles)}
+                disabled={isLoading || !localSmiles.trim()}
+                className="w-full py-3 px-5 rounded-2xl bg-primary text-on-primary font-semibold text-xs hover:opacity-90 shadow-lg flex items-center justify-center gap-2 transition active:scale-95"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Predict properties now</span>
+              </button>
+            )}
           </div>
 
           {/* Epistemic Quality Gauge Row */}
@@ -1298,77 +1338,85 @@ export const PredictPage: React.FC = () => {
         </div>
 
         {/* Multi-Bar Grid with Dashed Ensemble Mean Line */}
-        <div className="relative flex flex-col gap-5 pt-4">
-          {/* Dashed Vertical Active Mean / Model Line */}
-          <div
-            className="absolute top-0 bottom-0 pointer-events-none z-20 flex flex-col items-center border-r-2 border-dashed border-primary/70 transition-all duration-500"
-            style={{
-              left: `${calculateBarWidth(currentDisplay.meanVal)}%`,
-            }}
-          >
-            <span className="px-1.5 py-0.5 rounded bg-primary text-on-primary font-mono text-[10px] -mt-3 font-semibold shadow-sm whitespace-nowrap">
-              {isSingleModel
-                ? `${singleModelConfig?.label} ${currentDisplay.numeral}`
-                : `Mean ${currentDisplay.numeral}`}
-            </span>
+        {!pred ? (
+          <div className="py-12 text-center text-outline text-xs space-y-2 border border-dashed border-white/10 rounded-2xl">
+            <BrainCircuit className="w-8 h-8 text-primary/40 mx-auto animate-pulse" />
+            <p className="font-medium text-on-surface">No predictions generated yet</p>
+            <p className="text-on-surface-variant text-[11px]">Click &quot;Predict properties&quot; above to view individual model distribution and cross-architecture variance.</p>
           </div>
+        ) : (
+          <div className="relative flex flex-col gap-5 pt-4">
+            {/* Dashed Vertical Active Mean / Model Line */}
+            <div
+              className="absolute top-0 bottom-0 pointer-events-none z-20 flex flex-col items-center border-r-2 border-dashed border-primary/70 transition-all duration-500"
+              style={{
+                left: `${calculateBarWidth(currentDisplay.meanVal)}%`,
+              }}
+            >
+              <span className="px-1.5 py-0.5 rounded bg-primary text-on-primary font-mono text-[10px] -mt-3 font-semibold shadow-sm whitespace-nowrap">
+                {isSingleModel
+                  ? `${singleModelConfig?.label} ${currentDisplay.numeral}`
+                  : `Mean ${currentDisplay.numeral}`}
+              </span>
+            </div>
 
-          {/* Model Rows */}
-          {(Object.keys(MODEL_CONFIGS) as ModelKey[]).map((m) => {
-            const cfg = MODEL_CONFIGS[m];
-            const active = activeModels.has(m);
-            const isTarget = isSingleModel && active;
-            const val = currentDisplay.models[m] ?? currentDisplay.meanVal;
-            const delta = val - currentDisplay.meanVal;
-            const deltaSign = delta >= 0 ? '+' : '';
-            const widthPct = calculateBarWidth(val);
+            {/* Model Rows */}
+            {(Object.keys(MODEL_CONFIGS) as ModelKey[]).map((m) => {
+              const cfg = MODEL_CONFIGS[m];
+              const active = activeModels.has(m);
+              const isTarget = isSingleModel && active;
+              const val = currentDisplay.models[m] ?? currentDisplay.meanVal;
+              const delta = val - currentDisplay.meanVal;
+              const deltaSign = delta >= 0 ? '+' : '';
+              const widthPct = calculateBarWidth(val);
 
-            return (
-              <div
-                key={m}
-                onClick={(e) => handleToggleModel(m, e)}
-                className={`relative z-10 flex items-center gap-4 transition-all duration-300 cursor-pointer p-1.5 -mx-1.5 rounded-2xl hover:bg-surface-container-high/40 ${
-                  active ? 'opacity-100' : 'opacity-35 hover:opacity-75'
-                } ${isTarget ? 'ring-1 ring-primary/40 bg-surface-container/60' : ''}`}
-                title={`Click to focus on ${cfg.label} model`}
-              >
-                <div className="w-32 flex items-center justify-between shrink-0">
-                  <span className={`text-sm font-medium ${isTarget ? 'text-primary font-semibold' : 'text-on-surface'}`}>
-                    {cfg.label}
-                  </span>
-                  <span
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: cfg.color }}
-                  />
-                </div>
-
-                <div className="flex-1 h-9 rounded-xl bg-surface-container/60 p-1 flex items-center relative overflow-hidden group">
-                  <div
-                    className="h-full rounded-lg flex items-center justify-end px-3 transition-all duration-700 ease-out shadow-sm cursor-pointer hover:brightness-110"
-                    style={{
-                      width: `${widthPct}%`,
-                      backgroundColor: cfg.color,
-                    }}
-                  >
-                    <span className="font-mono text-xs text-white font-medium tabular-nums">
-                      {val.toFixed(2)}
+              return (
+                <div
+                  key={m}
+                  onClick={(e) => handleToggleModel(m, e)}
+                  className={`relative z-10 flex items-center gap-4 transition-all duration-300 cursor-pointer p-1.5 -mx-1.5 rounded-2xl hover:bg-surface-container-high/40 ${
+                    active ? 'opacity-100' : 'opacity-35 hover:opacity-75'
+                  } ${isTarget ? 'ring-1 ring-primary/40 bg-surface-container/60' : ''}`}
+                  title={`Click to focus on ${cfg.label} model`}
+                >
+                  <div className="w-32 flex items-center justify-between shrink-0">
+                    <span className={`text-sm font-medium ${isTarget ? 'text-primary font-semibold' : 'text-on-surface'}`}>
+                      {cfg.label}
                     </span>
+                    <span
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{ backgroundColor: cfg.color }}
+                    />
                   </div>
 
-                  <div className="pointer-events-none absolute right-4 opacity-0 group-hover:opacity-100 transition-opacity px-2.5 py-1 rounded bg-surface-container-high/90 text-on-surface font-mono text-[11px] border border-white/10 shadow-lg">
-                    {cfg.label} {cfg.sublabel} · Δ: {deltaSign}
+                  <div className="flex-1 h-9 rounded-xl bg-surface-container/60 p-1 flex items-center relative overflow-hidden group">
+                    <div
+                      className="h-full rounded-lg flex items-center justify-end px-3 transition-all duration-700 ease-out shadow-sm cursor-pointer hover:brightness-110"
+                      style={{
+                        width: `${widthPct}%`,
+                        backgroundColor: cfg.color,
+                      }}
+                    >
+                      <span className="font-mono text-xs text-white font-medium tabular-nums">
+                        {val.toFixed(2)}
+                      </span>
+                    </div>
+
+                    <div className="pointer-events-none absolute right-4 opacity-0 group-hover:opacity-100 transition-opacity px-2.5 py-1 rounded bg-surface-container-high/90 text-on-surface font-mono text-[11px] border border-white/10 shadow-lg">
+                      {cfg.label} {cfg.sublabel} · Δ: {deltaSign}
+                      {delta.toFixed(2)}
+                    </div>
+                  </div>
+
+                  <div className="w-16 font-mono text-xs text-on-surface-variant text-right tabular-nums shrink-0">
+                    Δ {deltaSign}
                     {delta.toFixed(2)}
                   </div>
                 </div>
-
-                <div className="w-16 font-mono text-xs text-on-surface-variant text-right tabular-nums shrink-0">
-                  Δ {deltaSign}
-                  {delta.toFixed(2)}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Chart Subtext Diagnostic */}
         <div className="flex items-center justify-between pt-4 border-t border-surface-container-highest/40 flex-wrap gap-2 text-xs">
