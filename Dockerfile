@@ -1,5 +1,5 @@
 # ==============================================================================
-# BioGraph AI — Multi-Stage Production Dockerfile
+# BioGraph AI — Multi-Stage Production Dockerfile (Hugging Face & Cloud Ready)
 # ==============================================================================
 
 # Stage 1: Build React Production Bundle
@@ -15,6 +15,8 @@ RUN npm run build
 # Stage 2: CPU-Optimized Python Backend Runtime
 FROM python:3.10-slim
 
+# Create user with UID 1000 for Hugging Face Spaces & non-root security
+RUN useradd -m -u 1000 user
 WORKDIR /app
 
 # Install system dependencies (OpenMP libgomp1 for PyTorch / RDKit)
@@ -39,11 +41,16 @@ COPY app/ ./app/
 # Copy compiled frontend from Stage 1
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
-# Configure port and container environment
-ENV PORT=8000 \
+# Set directory ownership for non-root user
+RUN chown -R user:user /app
+
+USER user
+
+# Configure port (7860 is Hugging Face Spaces default, dynamically respects $PORT)
+ENV PORT=7860 \
     PYTHONUNBUFFERED=1
 
-EXPOSE 8000
+EXPOSE 7860
 
 # Container healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \

@@ -1,5 +1,17 @@
+---
+title: BioGraph AI - Deep Graph Neural Networks for Molecular Discovery
+emoji: 🧬
+colorFrom: yellow
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
+
 # BioGraph AI — Deep Graph Neural Networks for Molecular Discovery
 
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-yellow.svg)](https://huggingface.co/spaces)
 [![Python 3.10](https://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/)
 [![PyTorch Geometric 2.8](https://img.shields.io/badge/PyTorch_Geometric-2.8-EE4C2C.svg)](https://pyg.org/)
 [![RDKit](https://img.shields.io/badge/RDKit-2023.09-green.svg)](https://www.rdkit.org/)
