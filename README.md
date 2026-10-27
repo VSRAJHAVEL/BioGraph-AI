@@ -10,6 +10,68 @@
 
 An enterprise-grade, CPU-optimized Computer-Aided Drug Discovery (CADD) platform that predicts chemical bioactivities, ADMET profiles, and toxicological liabilities directly from 2D molecular topologies using Graph Neural Networks (MPNN, GIN, GAT, GCN) and RDKit cheminformatics.
 
+<div align="center">
+  <img src="docs/screenshots/01_predict_studio.png" alt="BioGraph AI Molecular Property Predictor Studio" width="100%" />
+</div>
+
+---
+
+## 🖼 Platform Interface & Visual Tour
+
+### 1. Multi-Model Molecular Property Predictor
+Consensus epistemic uncertainty estimation across MPNN, GIN, GAT, GCN, and Random Forest baselines alongside live RDKit 2D Kekulé vector projections.
+<div align="center">
+  <img src="docs/screenshots/01_predict_studio.png" alt="BioGraph AI Molecular Property Predictor Studio" width="100%" />
+</div>
+
+<br/>
+
+### 2. 3D Stereochemical Conformation & Force-Field Studio
+Low-energy 3D molecular conformers generated using ETKDGv3 distance-geometry physics and MMFF94 force-field relaxation rendered via interactive WebGL with camera reset and fullscreen mode.
+<div align="center">
+  <img src="docs/screenshots/02_viewer_3d.png" alt="3D Molecular Conformer Studio" width="100%" />
+</div>
+
+<br/>
+
+### 3. In Silico ADMET & Bioavailability Radar
+Comprehensive oral bioavailability polygon radar chart evaluating Lipinski Rule of 5, Veber, Ghose, Egan, and PAINS/Brenk structural alert catalogs.
+<div align="center">
+  <img src="docs/screenshots/03_admet_radar.png" alt="In Silico ADMET Bioavailability Radar" width="100%" />
+</div>
+
+<br/>
+
+### 4. In Silico Lead Optimization & Matched Molecular Pairs
+Systematic bioisosteric substitutions, fluorinations, and polar surface tuning ranking candidate analogs with predicted deltas and QED drug-likeness.
+<div align="center">
+  <img src="docs/screenshots/04_lead_optimization.png" alt="In Silico Lead Optimization & MMP Analogs" width="100%" />
+</div>
+
+<br/>
+
+### 5. Chemical Space & Tanimoto Structural Search
+High-dimensional 2048-bit Morgan fingerprint representations projected into 2D chemical space via PCA with nearest-neighbor structural retrieval.
+<div align="center">
+  <img src="docs/screenshots/05_chemical_space.png" alt="Chemical Space 2D PCA Embeddings" width="100%" />
+</div>
+
+<br/>
+
+### 6. Explainable AI: GNNExplainer Attribution
+Information-theoretic sub-graph mutual information masks isolating the key pharmacophoric functional groups driving deep graph neural predictions.
+<div align="center">
+  <img src="docs/screenshots/06_gnn_explainer.png" alt="GNNExplainer Pharmacophore Attribution" width="100%" />
+</div>
+
+<br/>
+
+### 7. High-Throughput Virtual Screening Engine
+Batch screening pipeline ranking compound libraries using a multi-objective Drug Desirability Score (0–100) with one-click CSV export.
+<div align="center">
+  <img src="docs/screenshots/07_batch_screening.png" alt="High-Throughput Virtual Screening" width="100%" />
+</div>
+
 ---
 
 ## 🔬 Platform Architecture & Capabilities
@@ -106,6 +168,7 @@ BioGraph-AI/
 │   ├── raw/                   # Raw MoleculeNet benchmark CSVs (ESOL, BBBP, Tox21)
 │   └── processed/             # Cached PyG dataset bundles (.pt, generated locally)
 ├── docs/
+│   ├── screenshots/           # High-resolution platform UI walkthrough screenshots
 │   └── TECHNICAL_REFERENCE.md # In-depth technical specifications & math derivations
 ├── frontend/
 │   ├── public/                # Static assets, favicon, JSME sketcher bundle
