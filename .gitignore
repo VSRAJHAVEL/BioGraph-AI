@@ -23,6 +23,7 @@ frontend/node_modules/
 frontend/dist/
 frontend/test-results/
 frontend/.vite/
+*.tsbuildinfo
 
 # Large Preprocessed Dataset Bundles
 data/processed/*.pt

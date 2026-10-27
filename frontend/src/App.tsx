@@ -8,6 +8,7 @@ import Navbar from '@/components/Navbar';
 import CommandPalette from '@/components/CommandPalette';
 import JsmeSketcherModal from '@/components/JsmeSketcherModal';
 import WelcomeTourModal from '@/components/WelcomeTourModal';
+import Footer from '@/components/Footer';
 
 import PredictPage from '@/pages/PredictPage';
 import ExplainPage from '@/pages/ExplainPage';
@@ -99,6 +100,7 @@ function MainLayout() {
             <Route path="/help" element={<HelpPage />} />
             <Route path="*" element={<Navigate to="/predict" replace />} />
           </Routes>
+          <Footer />
         </main>
       </div>
 

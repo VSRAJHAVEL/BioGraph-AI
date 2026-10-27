@@ -95,6 +95,17 @@ export const Sidebar: React.FC = () => {
               <span className="font-semibold text-on-surface">BioGraph AI v2.0</span>
             </div>
             <div className="text-[10px]">PyG 2.8 · RDKit · Strict Scaffolds</div>
+            <div className="text-[10px] pt-1 text-on-surface-variant">
+              Handcrafted by{' '}
+              <a
+                href="https://vsrajhavel.github.io"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-semibold"
+              >
+                RAJHAVEL V S
+              </a>
+            </div>
           </div>
         ) : (
           <div className="text-center text-[10px] text-outline font-mono">v2.0</div>

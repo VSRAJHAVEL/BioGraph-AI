@@ -194,3 +194,16 @@ Graph/
 ├── setup.sh                   # Environment setup script
 └── README.md                  # Comprehensive project documentation
 ```
+
+---
+
+## 👨‍💻 Author & Engineering Credits
+
+**Handcrafted by RAJHAVEL V S**
+
+- 🌐 **Portfolio**: [vsrajhavel.github.io](https://vsrajhavel.github.io)
+- 💼 **LinkedIn**: [in/rajhavelvs](https://in.linkedin.com/in/rajhavelvs)
+- 🐙 **GitHub**: [github.com/VSRAJHAVEL](https://github.com/VSRAJHAVEL)
+
+---
+
