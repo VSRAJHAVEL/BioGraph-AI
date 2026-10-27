@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JSME Molecular Sketcher</title>
+  <script type="text/javascript" src="/jsme/jsme.nocache.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #0b0f19;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    #jsme_container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="jsme_container"></div>
+  <script type="text/javascript">
+    function jsmeOnLoad() {
+      // Initialize JSME in full interactive drawing/editing mode (NO depict flag!)
+      window.jsmeApplet = new JSApplet.JSME("jsme_container", "560px", "380px", {
+        options: "star,autoez"
+      });
+
+      // If pending smiles was requested before load
+      if (window.pendingSmiles && window.jsmeApplet) {
+        try {
+          window.jsmeApplet.readGenericMolecularInput(window.pendingSmiles);
+        } catch (e) {
+          console.error("Failed to load initial SMILES:", e);
+        }
+      }
+    }
+
+    // Clear the drawing canvas completely
+    window.clearCanvas = function() {
+      if (window.jsmeApplet) {
+        try {
+          window.jsmeApplet.clear();
+        } catch (e) {}
+        try {
+          window.jsmeApplet.reset();
+        } catch (e) {}
+      }
+    };
+
+    // Exposed helpers for parent window
+    window.getSmiles = function() {
+      if (window.jsmeApplet) {
+        return window.jsmeApplet.smiles();
+      }
+      return "";
+    };
+
+    window.getMol = function() {
+      if (window.jsmeApplet) {
+        return window.jsmeApplet.molFile();
+      }
+      return "";
+    };
+
+    window.setSmiles = function(smiles) {
+      if (window.jsmeApplet) {
+        if (!smiles || !smiles.trim()) {
+          window.clearCanvas();
+          return;
+        }
+        try {
+          window.jsmeApplet.readGenericMolecularInput(smiles.trim());
+        } catch (e) {
+          console.error("Error setting SMILES in JSME:", e);
+        }
+      } else {
+        window.pendingSmiles = smiles;
+      }
+    };
+  </script>
+</body>
+</html>
