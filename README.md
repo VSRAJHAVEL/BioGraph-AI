@@ -11,8 +11,9 @@ license: mit
 
 # BioGraph AI — Deep Graph Neural Networks for Molecular Discovery
 
-[![Hugging Face Models](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model%20Hub-yellow.svg)](https://huggingface.co/VSRAJHAVEL/BioGraph-AI-Models)
-[![GitHub Stars](https://img.shields.io/badge/GitHub-BioGraph--AI-10b981?logo=github)](https://github.com/VSRAJHAVEL/BioGraph-AI)
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Live%20Demo-Hugging%20Face%20Spaces-yellow?style=for-the-badge&logo=huggingface)](https://huggingface.co/spaces/Rajhavelvssince/BioGraph-AI)
+[![Hugging Face Models](https://img.shields.io/badge/%F0%9F%A4%97%20Model%20Hub-Pretrained%20Weights-orange?style=for-the-badge&logo=huggingface)](https://huggingface.co/VSRAJHAVEL/BioGraph-AI-Models)
+[![GitHub Stars](https://img.shields.io/badge/GitHub-BioGraph--AI-10b981?style=for-the-badge&logo=github)](https://github.com/VSRAJHAVEL/BioGraph-AI)
 [![Python 3.10](https://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/)
 [![PyTorch Geometric 2.8](https://img.shields.io/badge/PyTorch_Geometric-2.8-EE4C2C.svg)](https://pyg.org/)
 [![RDKit](https://img.shields.io/badge/RDKit-2023.09-green.svg)](https://www.rdkit.org/)
@@ -399,8 +400,8 @@ sudo systemctl enable --now biograph-ai
 - 🌐 **Portfolio Website**: [vsrajhavel.github.io](https://vsrajhavel.github.io)
 - 💼 **LinkedIn Profile**: [linkedin.com/in/rajhavelvs](https://in.linkedin.com/in/rajhavelvs)
 - 🐙 **GitHub Repository**: [github.com/VSRAJHAVEL/BioGraph-AI](https://github.com/VSRAJHAVEL/BioGraph-AI)
+- 🤗 **Hugging Face Live Demo**: [huggingface.co/spaces/Rajhavelvssince/BioGraph-AI](https://huggingface.co/spaces/Rajhavelvssince/BioGraph-AI)
 - 🤗 **Hugging Face Model Hub**: [huggingface.co/VSRAJHAVEL/BioGraph-AI-Models](https://huggingface.co/VSRAJHAVEL/BioGraph-AI-Models)
-- 🤗 **Hugging Face Profile**: [huggingface.co/VSRAJHAVEL](https://huggingface.co/VSRAJHAVEL)
 
 ---
 
