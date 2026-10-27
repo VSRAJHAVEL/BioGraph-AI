@@ -48,6 +48,9 @@ def load_trained_model(
     dataset_name = dataset_name.lower()
 
     if model_name == 'baseline':
+        if os.environ.get("LOW_MEMORY_MODE") == "1" and dataset_name == "tox21":
+            # Avoid deserializing 650MB Tox21 Random Forest pickle on 512MB cloud free-tier VMs
+            raise RuntimeError("Tox21 RF baseline disabled in LOW_MEMORY_MODE to preserve RAM limit.")
         ckpt_path = os.path.join(checkpoint_dir, f"{dataset_name}_baseline_best.pkl")
         if not os.path.exists(ckpt_path):
             raise FileNotFoundError(f"Baseline checkpoint not found at {ckpt_path}")

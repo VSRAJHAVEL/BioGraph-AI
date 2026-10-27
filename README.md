@@ -11,7 +11,8 @@ license: mit
 
 # BioGraph AI — Deep Graph Neural Networks for Molecular Discovery
 
-[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-yellow.svg)](https://huggingface.co/spaces)
+[![Hugging Face Models](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model%20Hub-yellow.svg)](https://huggingface.co/VSRAJHAVEL/BioGraph-AI-Models)
+[![GitHub Stars](https://img.shields.io/badge/GitHub-BioGraph--AI-10b981?logo=github)](https://github.com/VSRAJHAVEL/BioGraph-AI)
 [![Python 3.10](https://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/)
 [![PyTorch Geometric 2.8](https://img.shields.io/badge/PyTorch_Geometric-2.8-EE4C2C.svg)](https://pyg.org/)
 [![RDKit](https://img.shields.io/badge/RDKit-2023.09-green.svg)](https://www.rdkit.org/)
@@ -287,6 +288,22 @@ python src/explain.py --model mpnn --dataset esol --smiles "CC(=O)Oc1ccccc1C(=O)
 ### Option 1: Docker Container (Recommended for Cloud & Local Production)
 The included multi-stage `Dockerfile` compiles the React frontend and packages the CPU-optimized PyTorch/RDKit backend into a self-contained, isolated image:
 
+### Option 1: Koyeb (Recommended — 100% Free, Global Edge & Blazing Fast)
+
+Koyeb offers a **free forever Hobby tier** with high-performance MicroVMs, global CDN routing, automated free SSL, and zero cold starts.
+
+1. Sign up / Log in to [Koyeb](https://app.koyeb.com) using your GitHub account.
+2. Click **Create Service** $\to$ Select **GitHub**.
+3. Choose your repository: `VSRAJHAVEL/BioGraph-AI`.
+4. In **Builder**, select **Dockerfile** (Koyeb auto-detects `Dockerfile` and `koyeb.yaml`).
+5. In **Instance**, choose **Nano (Free)**.
+6. In **Environment Variables**, confirm:
+   - `PORT=8000`
+   - `LOW_MEMORY_MODE=1`
+7. Click **Deploy**. Within 2-3 minutes, your live discovery studio is active at `https://biograph-ai-<your-username>.koyeb.app`!
+
+### Option 2: Docker Local / Self-Hosted Production Container
+
 ```bash
 # 1. Build the production Docker image
 docker build -t biograph-ai:latest .
@@ -299,7 +316,7 @@ docker-compose up -d
 ```
 Access the application at **`http://localhost:8000`**.
 
-### Option 2: Render.com (One-Click Cloud Web Service)
+### Option 3: Render.com (One-Click Cloud Web Service)
 1. Fork or push your code to GitHub: `https://github.com/VSRAJHAVEL/BioGraph-AI`.
 2. Sign in to [Render](https://render.com) and click **New +** $\to$ **Web Service**.
 3. Connect your `BioGraph-AI` repository.
@@ -383,6 +400,8 @@ sudo systemctl enable --now biograph-ai
 - 🌐 **Portfolio Website**: [vsrajhavel.github.io](https://vsrajhavel.github.io)
 - 💼 **LinkedIn Profile**: [linkedin.com/in/rajhavelvs](https://in.linkedin.com/in/rajhavelvs)
 - 🐙 **GitHub Repository**: [github.com/VSRAJHAVEL/BioGraph-AI](https://github.com/VSRAJHAVEL/BioGraph-AI)
+- 🤗 **Hugging Face Model Hub**: [huggingface.co/VSRAJHAVEL/BioGraph-AI-Models](https://huggingface.co/VSRAJHAVEL/BioGraph-AI-Models)
+- 🤗 **Hugging Face Profile**: [huggingface.co/VSRAJHAVEL](https://huggingface.co/VSRAJHAVEL)
 
 ---
 
