@@ -285,24 +285,28 @@ python src/explain.py --model mpnn --dataset esol --smiles "CC(=O)Oc1ccccc1C(=O)
 
 ## 🚢 Deployment Guide
 
-### Option 1: Docker Container (Recommended for Cloud & Local Production)
-The included multi-stage `Dockerfile` compiles the React frontend and packages the CPU-optimized PyTorch/RDKit backend into a self-contained, isolated image:
+### Option 1: Render.com (Recommended — 100% Free 1-Click Cloud Hosting)
 
-### Option 1: Koyeb (Recommended — 100% Free, Global Edge & Blazing Fast)
+Render provides free cloud web hosting with automatic HTTPS and native Docker support connected directly to your GitHub repository.
 
-Koyeb offers a **free forever Hobby tier** with high-performance MicroVMs, global CDN routing, automated free SSL, and zero cold starts.
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/VSRAJHAVEL/BioGraph-AI)
 
-1. Sign up / Log in to [Koyeb](https://app.koyeb.com) using your GitHub account.
-2. Click **Create Service** $\to$ Select **GitHub**.
-3. Choose your repository: `VSRAJHAVEL/BioGraph-AI`.
-4. In **Builder**, select **Dockerfile** (Koyeb auto-detects `Dockerfile` and `koyeb.yaml`).
-5. In **Instance**, choose **Nano (Free)**.
-6. In **Environment Variables**, confirm:
-   - `PORT=8000`
-   - `LOW_MEMORY_MODE=1`
-7. Click **Deploy**. Within 2-3 minutes, your live discovery studio is active at `https://biograph-ai-<your-username>.koyeb.app`!
+1. Sign up / Log in to [Render](https://dashboard.render.com) using your GitHub account.
+2. Click **New +** $\to$ Select **Web Service**.
+3. Choose your repository: **`VSRAJHAVEL/BioGraph-AI`** (or click the Deploy button above).
+4. Render automatically detects [`Dockerfile`](Dockerfile) and [`render.yaml`](render.yaml):
+   - **Environment**: `Docker`
+   - **Plan**: `Free`
+   - **Port**: `8000`
+5. Click **Create Web Service**. Within ~2-3 minutes, your live studio is active with free automated SSL (e.g., `https://biograph-ai.onrender.com`)!
 
-### Option 2: Docker Local / Self-Hosted Production Container
+### Option 2: Railway.app (Fast 1-Click Cloud Deploy)
+
+1. Go to [railway.app](https://railway.app) and log in with GitHub.
+2. Click **New Project** $\to$ **Deploy from GitHub repo** $\to$ Select `VSRAJHAVEL/BioGraph-AI`.
+3. Railway automatically builds the multi-stage `Dockerfile` and deploys your live application in ~90 seconds.
+
+### Option 3: Local / Self-Hosted Docker Production Container
 
 ```bash
 # 1. Build the production Docker image
@@ -314,15 +318,10 @@ docker run -p 8000:8000 -e PORT=8000 biograph-ai:latest
 # Or using Docker Compose:
 docker-compose up -d
 ```
-Access the application at **`http://localhost:8000`**.
+Access the application locally at **`http://localhost:8000`**.
 
-### Option 3: Render.com (One-Click Cloud Web Service)
-1. Fork or push your code to GitHub: `https://github.com/VSRAJHAVEL/BioGraph-AI`.
-2. Sign in to [Render](https://render.com) and click **New +** $\to$ **Web Service**.
-3. Connect your `BioGraph-AI` repository.
-4. Select **Docker** as the Environment runtime (Render automatically detects the `Dockerfile`).
-5. Choose the **Standard instance** (recommended: 2 GB RAM minimum to hold the PyTorch/RDKit GNN models in memory).
-6. Click **Create Web Service**. Render builds the image and provisions a live public HTTPS URL (e.g., `https://biograph-ai.onrender.com`).
+### Option 4: Koyeb.com (Platform Updating)
+> **Note**: Koyeb has recently joined Mistral AI and is transitioning its infrastructure. If new app creation is paused on your dashboard, use **Render.com** (Option 1) or **Railway.app** (Option 2).
 
 ### Option 3: Railway.app / Fly.io
 - **Railway**: Click **New Project** $\to$ **Deploy from GitHub repo** $\to$ Select `BioGraph-AI`. Railway builds the `Dockerfile` and deploys automatically.
