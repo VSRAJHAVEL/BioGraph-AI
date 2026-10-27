@@ -1,0 +1,248 @@
+@import 'driver.js/dist/driver.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    
+    /* Apple Sequoia / SF Light Mode Palette */
+    --color-surface: 255 255 255;
+    --color-surface-dim: 242 244 247;
+    --color-surface-bright: 255 255 255;
+    --color-surface-container-lowest: 255 255 255;
+    --color-surface-container-low: 255 255 255;
+    --color-surface-container: 244 246 250;
+    --color-surface-container-high: 235 238 245;
+    --color-surface-container-highest: 224 228 238;
+    
+    /* Apple SF Typography Colors */
+    --color-on-surface: 29 29 31; /* #1d1d1f Apple Primary Text */
+    --color-on-surface-variant: 81 81 84; /* #515154 Apple Secondary Text */
+    --color-outline: 134 134 139; /* #86868b Apple Tertiary Text */
+    --color-outline-variant: 216 220 227; /* #d8dce3 */
+
+    /* Warm Liquid Honey Champagne (High-Contrast Light Accent) */
+    --color-primary: 173 115 22; /* #ad7316 */
+    --color-primary-container: 227 185 125;
+    --color-primary-fixed: 241 207 156;
+    --color-primary-fixed-dim: 220 185 130;
+    --color-on-primary: 255 255 255;
+    --color-on-primary-container: 65 45 7;
+
+    /* Apple Mint / Sage Secondary */
+    --color-secondary: 40 135 90;
+    --color-secondary-container: 220 245 230;
+    --color-secondary-fixed: 180 240 207;
+    --color-on-secondary: 255 255 255;
+    --color-on-secondary-container: 10 65 35;
+
+    --app-bg: #f5f6f8;
+    --glass-panel-bg: rgba(255, 255, 255, 0.76);
+    --glass-panel-border: rgba(0, 0, 0, 0.08);
+    --glass-panel-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+
+    --glass-card-bg: rgba(255, 255, 255, 0.68);
+    --glass-card-border: rgba(0, 0, 0, 0.06);
+    --glass-card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .dark {
+    color-scheme: dark;
+    
+    /* Obsidian & Graphite Surface Palette */
+    --color-surface: 17 19 23;
+    --color-surface-dim: 17 19 23;
+    --color-surface-bright: 55 57 62;
+    --color-surface-container-lowest: 12 14 18;
+    --color-surface-container-low: 26 28 32;
+    --color-surface-container: 30 32 36;
+    --color-surface-container-high: 40 42 46;
+    --color-surface-container-highest: 51 53 57;
+
+    --color-on-surface: 226 226 232;
+    --color-on-surface-variant: 209 197 183;
+    --color-outline: 153 143 130;
+    --color-outline-variant: 77 70 59;
+
+    --color-primary: 241 207 156;
+    --color-primary-container: 212 180 131;
+    --color-primary-fixed: 255 222 172;
+    --color-primary-fixed-dim: 227 194 144;
+    --color-on-primary: 65 45 7;
+    --color-on-primary-container: 92 69 30;
+
+    --color-secondary: 153 211 180;
+    --color-secondary-container: 25 83 59;
+    --color-secondary-fixed: 180 240 207;
+    --color-on-secondary: 0 56 36;
+    --color-on-secondary-container: 139 197 166;
+
+    --app-bg: #08090b;
+    --glass-panel-bg: rgba(26, 28, 32, 0.78);
+    --glass-panel-border: rgba(255, 255, 255, 0.06);
+    --glass-panel-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+
+    --glass-card-bg: rgba(30, 32, 36, 0.72);
+    --glass-card-border: rgba(255, 255, 255, 0.04);
+    --glass-card-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  }
+
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+    background-color: var(--app-bg);
+    color: rgb(var(--color-on-surface));
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  code, pre {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom Apple & Stitch AI Keyframes */
+@keyframes fadeInSlideUp {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(241, 207, 156, 0.15); }
+  50% { box-shadow: 0 0 25px rgba(241, 207, 156, 0.35); }
+}
+
+@keyframes shimmerPulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 0.2; }
+  100% { opacity: 0.6; }
+}
+
+.animate-stagger {
+  animation: fadeInSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.shimmer-active {
+  animation: shimmerPulse 0.75s ease-in-out infinite;
+}
+
+/* Glassmorphism Panels */
+.glass-panel {
+  background: var(--glass-panel-bg);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid var(--glass-panel-border);
+  box-shadow: var(--glass-panel-shadow);
+}
+
+.glass-card {
+  background: var(--glass-card-bg);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid var(--glass-card-border);
+  box-shadow: var(--glass-card-shadow);
+}
+
+/* Light theme subtle border adaptations for legacy classnames */
+html:not(.dark) [class*="border-white/"] {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html:not(.dark) [class*="hover:border-white/"]:hover {
+  border-color: rgba(0, 0, 0, 0.16) !important;
+}
+
+/* RDKit Molecular SVG Automatic Adaptation:
+   - In Dark Mode: inverted with dark background
+   - In Light Mode: crisp, crystal clear black lines with native chemistry colors */
+.dark .rdkit-svg-auto {
+  filter: invert(0.92) hue-rotate(180deg) brightness(1.15) contrast(1.1);
+}
+
+html:not(.dark) .rdkit-svg-auto {
+  filter: none;
+  mix-blend-mode: multiply;
+}
+
+/* Molecule bond & atom hover glow */
+.mol-bond, .mol-atom {
+  transition: stroke 0.25s ease, filter 0.25s ease, fill 0.25s ease;
+}
+.mol-container:hover .mol-bond {
+  filter: drop-shadow(0 0 3px rgba(241, 207, 156, 0.45));
+}
+.mol-atom:hover {
+  cursor: pointer;
+  filter: drop-shadow(0 0 6px rgba(255, 180, 171, 0.8));
+}
+
+/* Driver.js Adaptive Glass Theme */
+.dark .driver-popover {
+  background-color: #1a1c20 !important;
+  color: #e2e2e8 !important;
+  border: 1px solid #d4b483 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 20px rgba(241, 207, 156, 0.25) !important;
+  font-family: 'Geist', sans-serif !important;
+}
+
+html:not(.dark) .driver-popover {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(24px) !important;
+  color: #1d1d1f !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12), 0 0 20px rgba(184, 121, 24, 0.15) !important;
+  font-family: 'Geist', sans-serif !important;
+}
+
+.dark .driver-popover-title {
+  color: #f1cf9c !important;
+  font-family: 'Newsreader', serif !important;
+  font-weight: 600 !important;
+  font-size: 1.15rem !important;
+}
+
+html:not(.dark) .driver-popover-title {
+  color: #ad7316 !important;
+  font-family: 'Newsreader', serif !important;
+  font-weight: 600 !important;
+  font-size: 1.15rem !important;
+}
+
+.dark .driver-popover-description {
+  color: #d1c5b7 !important;
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+}
+
+html:not(.dark) .driver-popover-description {
+  color: #515154 !important;
+  font-size: 0.875rem !important;
+  line-height: 1.5 !important;
+}
+
+.dark .driver-popover-footer button {
+  background-color: #282a2e !important;
+  color: #e2e2e8 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 10px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  padding: 6px 14px !important;
+}
+
+html:not(.dark) .driver-popover-footer button {
+  background-color: #f0f2f6 !important;
+  color: #1d1d1f !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 10px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  padding: 6px 14px !important;
+}

@@ -1,0 +1,23 @@
+dataset: bbbp
+task_type: classification
+num_tasks: 1
+metric: roc_auc
+higher_is_better: true
+
+training:
+  batch_size: 32
+  epochs: 50
+  lr: 0.001
+  weight_decay: 0.0001
+  patience: 15
+  grad_clip: 1.0
+  lr_scheduler: reduce_on_plateau
+  lr_patience: 5
+  lr_factor: 0.5
+  seeds: [42, 123, 999]
+
+model:
+  hidden_dim: 64
+  num_layers: 3
+  dropout: 0.2
+  residual: true
