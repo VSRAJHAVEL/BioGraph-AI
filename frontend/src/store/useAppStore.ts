@@ -38,6 +38,10 @@ interface AppState {
   setShowTooltips: (show: boolean) => void;
   dismissedGuides: string[];
   toggleGuideDismissed: (guideId: string) => void;
+
+  // Auto-analyze trigger (e.g. from Transfer to Studio)
+  shouldAutoAnalyze: boolean;
+  setShouldAutoAnalyze: (should: boolean) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -47,6 +51,8 @@ export const useAppStore = create<AppState>()(
       setSmiles: (smiles) => set({ smiles, currentSmiles: smiles }),
       currentSmiles: 'CC(=O)Oc1ccccc1C(=O)O',
       setCurrentSmiles: (smiles) => set({ smiles, currentSmiles: smiles }),
+      shouldAutoAnalyze: false,
+      setShouldAutoAnalyze: (shouldAutoAnalyze) => set({ shouldAutoAnalyze }),
 
       analysisData: null,
       setAnalysisData: (data) => set({ analysisData: data, analysisError: null }),

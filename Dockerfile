@@ -46,11 +46,11 @@ RUN chown -R user:user /app
 
 USER user
 
-# Configure port (8000 is default for Koyeb, Render, & Docker, dynamically respects $PORT)
-ENV PORT=8000 \
+# Configure port (7860 is Hugging Face Spaces default, dynamically respects $PORT)
+ENV PORT=7860 \
     PYTHONUNBUFFERED=1
 
-EXPOSE 8000
+EXPOSE 7860
 
 # Container healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \

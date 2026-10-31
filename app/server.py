@@ -20,7 +20,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from pydantic import BaseModel, Field
 
 from rdkit import Chem, RDLogger
-from rdkit.Chem import Draw, Descriptors
+from rdkit.Chem import Draw, Descriptors, AllChem
 from rdkit.Chem.Draw import rdMolDraw2D
 
 from src.data import smiles_to_graph, DATASET_CONFIGS
@@ -350,36 +350,91 @@ def sketcher_graph_to_smiles(req: GraphToSmilesRequest):
                     order = Chem.BondType.AROMATIC
                 mol.AddBond(src, dst, order)
 
+    # 1. Standard full sanitization
     try:
-        Chem.SanitizeMol(mol)
-        smi = Chem.MolToSmiles(mol)
-        formula = Chem.rdMolDescriptors.CalcMolFormula(mol)
-        mw = round(float(Descriptors.MolWt(mol)), 2)
-        svg = generate_molecule_svg(mol, width=280, height=180)
+        mol_san = Chem.RWMol(mol)
+        Chem.SanitizeMol(mol_san)
+        smi = Chem.MolToSmiles(mol_san)
+        formula = Chem.rdMolDescriptors.CalcMolFormula(mol_san)
+        mw = round(float(Descriptors.MolWt(mol_san)), 2)
+        svg = generate_molecule_svg(mol_san, width=280, height=180)
         return {
             "valid": True,
             "smiles": smi,
             "formula": formula,
             "mw": mw,
-            "heavy_atoms": int(mol.GetNumHeavyAtoms()),
+            "heavy_atoms": int(mol_san.GetNumHeavyAtoms()),
             "svg_2d": svg
         }
     except Exception:
-        # Generate non-sanitized SMILES if valence is temporarily incomplete during drawing
+        pass
+
+    # 2. Fix non-ring aromatic bonds (e.g. while user is drawing ring or branch)
+    try:
+        mol_fix = Chem.RWMol(mol)
+        Chem.FastFindRings(mol_fix)
+        for b in mol_fix.GetBonds():
+            if b.GetBondType() == Chem.BondType.AROMATIC and not b.IsInRing():
+                b.SetBondType(Chem.BondType.SINGLE)
+        for a in mol_fix.GetAtoms():
+            if not a.IsInRing():
+                a.SetIsAromatic(False)
+
+        Chem.SanitizeMol(mol_fix, sanitizeOps=Chem.SANITIZE_ALL ^ Chem.SANITIZE_PROPERTIES)
+        smi = Chem.MolToSmiles(mol_fix)
+        formula = ""
+        mw = 0.0
         try:
-            smi = Chem.MolToSmiles(mol, kekuleSmiles=True)
+            formula = Chem.rdMolDescriptors.CalcMolFormula(mol_fix)
+            mw = round(float(Descriptors.MolWt(mol_fix)), 2)
+        except Exception:
+            pass
+        return {
+            "valid": True,
+            "smiles": smi,
+            "formula": formula,
+            "mw": mw,
+            "heavy_atoms": int(mol_fix.GetNumHeavyAtoms()),
+            "svg_2d": ""
+        }
+    except Exception:
+        pass
+
+    # 3. Permissive fallback without property checks
+    try:
+        mol_perm = Chem.RWMol(mol)
+        for b in mol_perm.GetBonds():
+            if b.GetBondType() == Chem.BondType.AROMATIC:
+                b.SetBondType(Chem.BondType.SINGLE)
+        for a in mol_perm.GetAtoms():
+            a.SetIsAromatic(False)
+        Chem.SanitizeMol(mol_perm, sanitizeOps=Chem.SANITIZE_ALL ^ Chem.SANITIZE_PROPERTIES ^ Chem.SANITIZE_KEKULIZE)
+        smi = Chem.MolToSmiles(mol_perm)
+        return {
+            "valid": True,
+            "smiles": smi,
+            "formula": "",
+            "mw": 0.0,
+            "heavy_atoms": int(mol_perm.GetNumHeavyAtoms()),
+            "svg_2d": ""
+        }
+    except Exception:
+        # 4. Dot-separated atoms fallback for unconnected sketches
+        try:
+            elems = [a.element.strip().capitalize() or "C" for a in req.atoms]
+            smi = ".".join(elems)
             return {
                 "valid": True,
                 "smiles": smi,
                 "formula": "",
                 "mw": 0.0,
-                "heavy_atoms": int(mol.GetNumHeavyAtoms()),
+                "heavy_atoms": len(elems),
                 "svg_2d": ""
             }
-        except Exception as e2:
+        except Exception as e_final:
             return {
                 "valid": False,
-                "error": str(e2),
+                "error": str(e_final),
                 "smiles": "",
                 "formula": "",
                 "mw": 0.0,

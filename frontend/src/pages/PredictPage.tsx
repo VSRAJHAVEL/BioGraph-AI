@@ -79,6 +79,8 @@ export const PredictPage: React.FC = () => {
     analysisError,
     setAnalysisError,
     setSketcherOpen,
+    shouldAutoAnalyze,
+    setShouldAutoAnalyze,
   } = useAppStore();
 
   const [localSmiles, setLocalSmiles] = useState(smiles);
@@ -193,6 +195,15 @@ export const PredictPage: React.FC = () => {
     },
     [setIsLoading, setAnalysisError, setAnalysisData, setSmiles, activePreset]
   );
+
+  // Auto-analyze triggered when transferred from sketcher to studio
+  useEffect(() => {
+    if (shouldAutoAnalyze && smiles && smiles.trim()) {
+      setShouldAutoAnalyze(false);
+      setLocalSmiles(smiles.trim());
+      runAnalysis(smiles.trim());
+    }
+  }, [shouldAutoAnalyze, smiles, runAnalysis, setShouldAutoAnalyze]);
 
   // Global Ctrl+Enter shortcut to trigger Predict properties
   useEffect(() => {

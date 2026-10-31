@@ -11,9 +11,7 @@ license: mit
 
 # BioGraph AI — Deep Graph Neural Networks for Molecular Discovery
 
-[![Live Platform](https://img.shields.io/badge/%F0%9F%8C%90%20Live%20Platform-GitHub%20Pages-2ea44f?style=for-the-badge&logo=github)](https://vsrajhavel.github.io/BioGraph-AI/)
-[![Hugging Face Models](https://img.shields.io/badge/%F0%9F%A4%97%20Model%20Hub-Pretrained%20Weights-orange?style=for-the-badge&logo=huggingface)](https://huggingface.co/VSRAJHAVEL/BioGraph-AI-Models)
-[![GitHub Stars](https://img.shields.io/badge/GitHub-BioGraph--AI-10b981?style=for-the-badge&logo=github)](https://github.com/VSRAJHAVEL/BioGraph-AI)
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-yellow.svg)](https://huggingface.co/spaces)
 [![Python 3.10](https://img.shields.io/badge/Python-3.10-blue.svg)](https://www.python.org/)
 [![PyTorch Geometric 2.8](https://img.shields.io/badge/PyTorch_Geometric-2.8-EE4C2C.svg)](https://pyg.org/)
 [![RDKit](https://img.shields.io/badge/RDKit-2023.09-green.svg)](https://www.rdkit.org/)
@@ -286,28 +284,8 @@ python src/explain.py --model mpnn --dataset esol --smiles "CC(=O)Oc1ccccc1C(=O)
 
 ## 🚢 Deployment Guide
 
-### Option 1: Render.com (Recommended — 100% Free 1-Click Cloud Hosting)
-
-Render provides free cloud web hosting with automatic HTTPS and native Docker support connected directly to your GitHub repository.
-
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/VSRAJHAVEL/BioGraph-AI)
-
-1. Sign up / Log in to [Render](https://dashboard.render.com) using your GitHub account.
-2. Click **New +** $\to$ Select **Web Service**.
-3. Choose your repository: **`VSRAJHAVEL/BioGraph-AI`** (or click the Deploy button above).
-4. Render automatically detects [`Dockerfile`](Dockerfile) and [`render.yaml`](render.yaml):
-   - **Environment**: `Docker`
-   - **Plan**: `Free`
-   - **Port**: `8000`
-5. Click **Create Web Service**. Within ~2-3 minutes, your live studio is active with free automated SSL (e.g., `https://biograph-ai.onrender.com`)!
-
-### Option 2: Railway.app (Fast 1-Click Cloud Deploy)
-
-1. Go to [railway.app](https://railway.app) and log in with GitHub.
-2. Click **New Project** $\to$ **Deploy from GitHub repo** $\to$ Select `VSRAJHAVEL/BioGraph-AI`.
-3. Railway automatically builds the multi-stage `Dockerfile` and deploys your live application in ~90 seconds.
-
-### Option 3: Local / Self-Hosted Docker Production Container
+### Option 1: Docker Container (Recommended for Cloud & Local Production)
+The included multi-stage `Dockerfile` compiles the React frontend and packages the CPU-optimized PyTorch/RDKit backend into a self-contained, isolated image:
 
 ```bash
 # 1. Build the production Docker image
@@ -319,10 +297,15 @@ docker run -p 8000:8000 -e PORT=8000 biograph-ai:latest
 # Or using Docker Compose:
 docker-compose up -d
 ```
-Access the application locally at **`http://localhost:8000`**.
+Access the application at **`http://localhost:8000`**.
 
-### Option 4: Koyeb.com (Platform Updating)
-> **Note**: Koyeb has recently joined Mistral AI and is transitioning its infrastructure. If new app creation is paused on your dashboard, use **Render.com** (Option 1) or **Railway.app** (Option 2).
+### Option 2: Render.com (One-Click Cloud Web Service)
+1. Fork or push your code to GitHub: `https://github.com/VSRAJHAVEL/BioGraph-AI`.
+2. Sign in to [Render](https://render.com) and click **New +** $\to$ **Web Service**.
+3. Connect your `BioGraph-AI` repository.
+4. Select **Docker** as the Environment runtime (Render automatically detects the `Dockerfile`).
+5. Choose the **Standard instance** (recommended: 2 GB RAM minimum to hold the PyTorch/RDKit GNN models in memory).
+6. Click **Create Web Service**. Render builds the image and provisions a live public HTTPS URL (e.g., `https://biograph-ai.onrender.com`).
 
 ### Option 3: Railway.app / Fly.io
 - **Railway**: Click **New Project** $\to$ **Deploy from GitHub repo** $\to$ Select `BioGraph-AI`. Railway builds the `Dockerfile` and deploys automatically.
@@ -397,11 +380,9 @@ sudo systemctl enable --now biograph-ai
 
 **Handcrafted by RAJHAVEL V S**
 
-- 🌐 **Live Platform**: [vsrajhavel.github.io/BioGraph-AI](https://vsrajhavel.github.io/BioGraph-AI/)
 - 🌐 **Portfolio Website**: [vsrajhavel.github.io](https://vsrajhavel.github.io)
 - 💼 **LinkedIn Profile**: [linkedin.com/in/rajhavelvs](https://in.linkedin.com/in/rajhavelvs)
 - 🐙 **GitHub Repository**: [github.com/VSRAJHAVEL/BioGraph-AI](https://github.com/VSRAJHAVEL/BioGraph-AI)
-- 🤗 **Hugging Face Model Hub**: [huggingface.co/VSRAJHAVEL/BioGraph-AI-Models](https://huggingface.co/VSRAJHAVEL/BioGraph-AI-Models)
 
 ---
 

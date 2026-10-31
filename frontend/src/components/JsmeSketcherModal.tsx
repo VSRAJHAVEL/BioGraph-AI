@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   X,
   Check,
@@ -49,7 +50,8 @@ const ELEMENT_COLORS_LIGHT: Record<string, { bg: string; text: string; stroke: s
 const COMMON_ELEMENTS = ['C', 'N', 'O', 'S', 'F', 'Cl', 'Br', 'I'];
 
 export const JsmeSketcherModal: React.FC = () => {
-  const { sketcherOpen, setSketcherOpen, smiles, setSmiles, theme } = useAppStore();
+  const navigate = useNavigate();
+  const { sketcherOpen, setSketcherOpen, smiles, setSmiles, theme, setShouldAutoAnalyze } = useAppStore();
   const isDark = theme === 'dark';
 
   const [atoms, setAtoms] = useState<SketcherAtom[]>([]);
@@ -69,12 +71,17 @@ export const JsmeSketcherModal: React.FC = () => {
   // Undo / Redo history
   const [history, setHistory] = useState<{ atoms: SketcherAtom[]; bonds: SketcherBond[] }[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
+  const historyIndexRef = useRef(historyIndex);
+  useEffect(() => {
+    historyIndexRef.current = historyIndex;
+  }, [historyIndex]);
 
   // Real-time SMILES & Formula
   const [currentSmiles, setCurrentSmiles] = useState<string>('');
   const [formula, setFormula] = useState<string>('');
   const [mw, setMw] = useState<number>(0);
   const [customImportSmiles, setCustomImportSmiles] = useState<string>('');
+  const [isTransferring, setIsTransferring] = useState<boolean>(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const dragInfoRef = useRef<{
@@ -85,15 +92,16 @@ export const JsmeSketcherModal: React.FC = () => {
     hasMovedPastThreshold: boolean;
   } | null>(null);
   const justFinishedDragRef = useRef<boolean>(false);
+  const hasInitializedRef = useRef<boolean>(false);
 
   // Push state to history
   const pushHistory = useCallback((newAtoms: SketcherAtom[], newBonds: SketcherBond[]) => {
     setHistory((prev) => {
-      const updated = prev.slice(0, historyIndex + 1);
+      const updated = prev.slice(0, historyIndexRef.current + 1);
       return [...updated, { atoms: newAtoms, bonds: newBonds }];
     });
     setHistoryIndex((prev) => prev + 1);
-  }, [historyIndex]);
+  }, []);
 
   // Load SMILES into 2D graph
   const loadSmilesIntoGraph = useCallback(async (smi: string) => {
@@ -116,20 +124,25 @@ export const JsmeSketcherModal: React.FC = () => {
     }
   }, [pushHistory]);
 
-  // Preload initial workspace molecule when opening
+  // Preload initial workspace molecule ONCE when opening modal
   useEffect(() => {
     if (sketcherOpen) {
-      if (smiles && smiles.trim()) {
-        loadSmilesIntoGraph(smiles.trim());
-      } else {
-        setAtoms([]);
-        setBonds([]);
-        setCurrentSmiles('');
-        setFormula('');
-        setMw(0);
-        setHistory([]);
-        setHistoryIndex(-1);
+      if (!hasInitializedRef.current) {
+        hasInitializedRef.current = true;
+        if (smiles && smiles.trim()) {
+          loadSmilesIntoGraph(smiles.trim());
+        } else {
+          setAtoms([]);
+          setBonds([]);
+          setCurrentSmiles('');
+          setFormula('');
+          setMw(0);
+          setHistory([]);
+          setHistoryIndex(-1);
+        }
       }
+    } else {
+      hasInitializedRef.current = false;
     }
   }, [sketcherOpen, smiles, loadSmilesIntoGraph]);
 
@@ -532,14 +545,39 @@ export const JsmeSketcherModal: React.FC = () => {
   };
 
   // Transfer to Studio
-  const handleTransfer = () => {
-    if (!currentSmiles || !currentSmiles.trim()) {
+  const handleTransfer = async () => {
+    if (atoms.length === 0) {
       toast.error('Canvas is empty. Draw a chemical structure first.');
       return;
     }
-    setSmiles(currentSmiles.trim());
+
+    setIsTransferring(true);
+    let finalSmiles = currentSmiles?.trim();
+
+    // If currentSmiles is not yet resolved, sync immediately with backend
+    if (!finalSmiles) {
+      try {
+        const res = await api.sketcherGraphToSmiles(atoms, bonds);
+        if (res && res.smiles && res.smiles.trim()) {
+          finalSmiles = res.smiles.trim();
+          setCurrentSmiles(finalSmiles);
+        }
+      } catch (err) {
+        console.error('Error during on-demand SMILES sync:', err);
+      }
+    }
+
+    // Fallback if still empty (e.g. single unconnected atoms)
+    if (!finalSmiles) {
+      finalSmiles = atoms.map((a) => a.element || 'C').join('.');
+    }
+
+    setSmiles(finalSmiles);
+    setShouldAutoAnalyze(true);
     setSketcherOpen(false);
-    toast.success(`Transferred ${currentSmiles} to main studio!`);
+    setIsTransferring(false);
+    navigate('/predict');
+    toast.success(`Transferred ${finalSmiles} to main studio!`);
   };
 
   if (!sketcherOpen) return null;
@@ -1014,11 +1052,18 @@ export const JsmeSketcherModal: React.FC = () => {
             </button>
             <button
               type="button"
+              id="transfer-to-studio-btn"
               onClick={handleTransfer}
-              disabled={!currentSmiles}
+              disabled={atoms.length === 0 || isTransferring}
               className="px-5 py-2 rounded-2xl bg-primary text-on-primary font-semibold text-xs flex items-center gap-1.5 shadow-apple-sm dark:shadow-glow hover:opacity-95 disabled:opacity-40 transition active:scale-95"
             >
-              <Check className="w-4 h-4" /> Transfer to Studio <ArrowRight className="w-3.5 h-3.5" />
+              {isTransferring ? (
+                <span>Transferring...</span>
+              ) : (
+                <>
+                  <Check className="w-4 h-4" /> Transfer to Studio <ArrowRight className="w-3.5 h-3.5" />
+                </>
+              )}
             </button>
           </div>
         </div>

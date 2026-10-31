@@ -35,3 +35,9 @@ Thumbs.db
 .vscode/
 *.swp
 *.log
+
+# Video & Audio Demo Build Directories
+video_build/
+raw_recordings/
+demo_audio/
+*.webm
