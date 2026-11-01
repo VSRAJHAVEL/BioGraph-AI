@@ -196,6 +196,13 @@ export const PredictPage: React.FC = () => {
     [setIsLoading, setAnalysisError, setAnalysisData, setSmiles, activePreset]
   );
 
+  // Auto-analyze on initial mount if no analysis data exists yet
+  useEffect(() => {
+    if (!analysisData && smiles && smiles.trim()) {
+      runAnalysis(smiles.trim());
+    }
+  }, []);
+
   // Auto-analyze triggered when transferred from sketcher to studio
   useEffect(() => {
     if (shouldAutoAnalyze && smiles && smiles.trim()) {
@@ -217,16 +224,14 @@ export const PredictPage: React.FC = () => {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [runAnalysis, localSmiles]);
 
-  // Handle Preset selection: populates the molecule but awaits user clicking Predict
+  // Handle Preset selection: populates the molecule and triggers immediate inference
   const handleSelectPreset = (presetKey: string) => {
     const preset = PRESET_DRUGS[presetKey];
     if (!preset) return;
     setActivePreset(presetKey);
     setLocalSmiles(preset.smiles);
     setSmiles(preset.smiles);
-    setAnalysisData(null);
-    setJustInferred(false);
-    toast.info(`Selected ${preset.name}. Click "Predict properties" to evaluate with PyG GNNs.`);
+    runAnalysis(preset.smiles);
   };
 
   // Copy SMILES to clipboard

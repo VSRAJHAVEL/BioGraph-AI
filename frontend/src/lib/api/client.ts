@@ -55,8 +55,17 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
   throw new Error(`Endpoint ${url} unavailable and no offline cache found.`);
 }
 
+const PRESET_LOOKUP: Record<string, string> = {
+  'CC(=O)Oc1ccccc1C(=O)O': 'CC(=O)OC1=CC=CC=C1C(=O)O',
+  'Cn1cnc2c1c(=O)n(c(=O)n2C)C': 'CN1C=NC2=C1C(=O)N(C(=O)N2C)C',
+  'CC(C)Cc1ccc(cc1)C(C)C(=O)O': 'CC(C)CC1=CC=C(C=C1)C(C)C(=O)O',
+  'CC(=O)Nc1ccc(O)cc1': 'CC(=O)NC1=CC=C(O)C=C1',
+  'CC(C)c1c(C(=O)Nc2ccccc2)c(-c2ccccc2)c(-c2ccc(F)cc2)n1CCC(O)CC(O)CC(=O)O': 'CC(C)c1c(C(=O)Nc2ccccc2)c(-c2ccccc2)c(-c2ccc(F)cc2)n1CCC(O)CC(O)CC(=O)O',
+};
+
 function normalizeSmiles(s: string): string {
-  return s.trim();
+  const trimmed = s.trim();
+  return PRESET_LOOKUP[trimmed] || trimmed;
 }
 
 function getOfflineFallback<T>(url: string, options?: RequestInit): T | null {
